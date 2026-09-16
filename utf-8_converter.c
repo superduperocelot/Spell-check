@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "utf-8_converter.h"
 
 
@@ -20,7 +21,8 @@ utf_8_char read_utf_8_char(const char** c) {
     short chars_to_read = bytes_in_utf_8_char(**c);
     if(chars_to_read == 0)
         return (utf_8_char) {{'\0', '\0', '\0', '\0'}};
-    for(int i = 0; i < chars_to_read; i++) {
+
+    for(short i = 0; i < chars_to_read; i++) {
         if(**c == '\0')
             return (utf_8_char) {{'\0', '\0', '\0', '\0'}};
         u.chars[i] = **c;
@@ -31,6 +33,11 @@ utf_8_char read_utf_8_char(const char** c) {
 
 bool is_null_terminator(utf_8_char u) {
     return u.chars[0] == '\0';
+}
+
+bool are_equal(utf_8_char u_1, utf_8_char u_2) {
+    return bytes_in_utf_8_char(u_1.chars[0]) != bytes_in_utf_8_char(u_2.chars[0]) ||
+           !memcmp(&u_1, &u_2, bytes_in_utf_8_char(u_1.chars[0]));
 }
 
 bool load_word(const char* str, utf_8_char* word) {

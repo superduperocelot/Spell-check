@@ -13,6 +13,8 @@ utf_8_char read_utf_8_char(const char** c);
 
 bool is_null_terminator(utf_8_char u);
 
+bool are_equal(utf_8_char u_1, utf_8_char u_2);
+
 bool load_word(const char* str, utf_8_char* word);
 
 void print_utf_8_char(utf_8_char u);
