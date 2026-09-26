@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <ctype.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -8,7 +9,7 @@
 
 #define HASH_MAP_SIZE 443
 int found_char_count = 0;
-utf_8_char found_chars[HASH_MAP_SIZE];
+utf_8_char hash_map[HASH_MAP_SIZE];
 int char_counters[HASH_MAP_SIZE];
 
 unsigned int hash(utf_8_char u) {
@@ -21,27 +22,31 @@ unsigned int hash(utf_8_char u) {
 }
 
 unsigned int rehash(unsigned int n) {
-    return (n + 1) % HASH_MAP_SIZE;
+    return (n + 101) % HASH_MAP_SIZE;
 }
 
-void insert_to_hash_map(utf_8_char u) {
+bool insert_to_hash_map(utf_8_char u) {
     if(isspace(u.chars[0]))
-        return;
+        return true;
 
-    unsigned int i = hash(u);
+    unsigned int attempts = 0, i = hash(u);
     //While the space is non-empty and not equal to u
-    while(!is_null_terminator(found_chars[i]) && !are_equal(u, found_chars[i])) {
+    while(!is_null_terminator(hash_map[i]) && !are_equal(u, hash_map[i])) {
         i = rehash(i);
+        if(attempts++ >= HASH_MAP_SIZE)
+            return false;
     }
-    found_char_count += is_null_terminator(found_chars[i]);
-    found_chars[i] = u;
+    
+    found_char_count += is_null_terminator(hash_map[i]);
+    hash_map[i] = u;
     char_counters[i]++;
+    return true;
 }
 
 void print_hash_map() {
     for(int i = 0; i < HASH_MAP_SIZE; i++) {
-        if(!is_null_terminator(found_chars[i])) {
-            print_utf_8_char(found_chars[i]);
+        if(!is_null_terminator(hash_map[i])) {
+            print_utf_8_char(hash_map[i]);
             printf(": %d\n", char_counters[i]);
         }
     }
@@ -58,18 +63,42 @@ int main (int argc, char **argv) {
         printf("Error opening file\n");
         return 1;
     }
-    utf_8_char u;
-    int bytes_in_buf = 0;
-    int counter = 0;
-    while(read(fd, u.chars + bytes_in_buf, 1) > 0 && found_char_count < HASH_MAP_SIZE) {
-        int bytes_to_read = bytes_in_utf_8_char(u.chars[0]);
-        bytes_in_buf++;
-        if(bytes_in_buf >= bytes_to_read) {
-            insert_to_hash_map(u);
-            bytes_in_buf = 0;
+    const int buf_size = 256;
+    char buf[buf_size];
+    size_t bytes_read = 0;
+    size_t total_progress = 0;
+    
+    while((bytes_read = read(fd, buf, buf_size - 3)) > 0) {
+        size_t bytes_processed = 0;
+        
+        while (bytes_processed < bytes_read) {
+            int bytes_in_char = bytes_in_utf_8_char(buf[bytes_processed]);
+            size_t unprocessed_byte_count = bytes_read - bytes_processed;
+
+            if(bytes_in_char > unprocessed_byte_count) {
+                //Not all bytes for the char has been read yet
+                size_t missing_byte_count = bytes_in_char - unprocessed_byte_count;
+                if(read(fd, buf + bytes_read, missing_byte_count) != missing_byte_count) {
+                    printf("Error reading a character\n");
+                    break;
+                }
+                bytes_read += missing_byte_count;
+            }
+            utf_8_char u;
+            memcpy(&u.chars, buf + bytes_processed, bytes_in_char);
+            if(!insert_to_hash_map(u)) {
+                printf("Found aditional character \'");
+                print_utf_8_char(u);
+                printf("\' but hashmap is full.\n");
+                return 1;
+            }
+            bytes_processed += bytes_in_char;
         }
-        if(++counter % 100000 == 0)
-            printf("%d\n", counter);
+        
+        total_progress += bytes_read;
+        if((total_progress - bytes_read) / 1000000 != total_progress / 1000000) {
+            printf("%lu mB\n", total_progress/1000000);
+        }
     }
     close(fd);
     printf("Found %d characters:\n", found_char_count);
