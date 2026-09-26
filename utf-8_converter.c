@@ -36,8 +36,8 @@ bool is_null_terminator(utf_8_char u) {
 }
 
 bool are_equal(utf_8_char u_1, utf_8_char u_2) {
-    return bytes_in_utf_8_char(u_1.chars[0]) != bytes_in_utf_8_char(u_2.chars[0]) ||
-           !memcmp(&u_1, &u_2, bytes_in_utf_8_char(u_1.chars[0]));
+    return bytes_in_utf_8_char(u_1.chars[0]) == bytes_in_utf_8_char(u_2.chars[0]) &&
+           memcmp(&u_1, &u_2, bytes_in_utf_8_char(u_1.chars[0])) == 0;
 }
 
 bool load_word(const char* str, utf_8_char* word) {
