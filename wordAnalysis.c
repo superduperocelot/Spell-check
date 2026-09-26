@@ -14,7 +14,7 @@ int char_counters[HASH_MAP_SIZE];
 
 unsigned int hash(utf_8_char u) {
     unsigned int hash_sum = 0;
-    for(short i = 0; i < bytes_in_utf_8_char(u.chars[0]); i++) {
+    for(short i = 0; i < utf_8_size(u.chars[0]); i++) {
         hash_sum += u.chars[i];    
     }
     hash_sum %= HASH_MAP_SIZE;
@@ -65,41 +65,18 @@ int main (int argc, char **argv) {
     }
     const int buf_size = 256;
     char buf[buf_size];
-    size_t bytes_read = 0;
-    size_t total_progress = 0;
-    
-    while((bytes_read = read(fd, buf, buf_size - 3)) > 0) {
-        size_t bytes_processed = 0;
-        
-        while (bytes_processed < bytes_read) {
-            int bytes_in_char = bytes_in_utf_8_char(buf[bytes_processed]);
-            size_t unprocessed_byte_count = bytes_read - bytes_processed;
+    reader_info r = new_reader_info(buf, buf_size);
+    utf_8_char u;
 
-            if(bytes_in_char > unprocessed_byte_count) {
-                //Not all bytes for the char has been read yet
-                size_t missing_byte_count = bytes_in_char - unprocessed_byte_count;
-                if(read(fd, buf + bytes_read, missing_byte_count) != missing_byte_count) {
-                    printf("Error reading a character\n");
-                    break;
-                }
-                bytes_read += missing_byte_count;
-            }
-            utf_8_char u;
-            memcpy(&u.chars, buf + bytes_processed, bytes_in_char);
-            if(!insert_to_hash_map(u)) {
-                printf("Found aditional character \'");
-                print_utf_8_char(u);
-                printf("\' but hashmap is full.\n");
-                return 1;
-            }
-            bytes_processed += bytes_in_char;
-        }
-        
-        total_progress += bytes_read;
-        if((total_progress - bytes_read) / 1000000 != total_progress / 1000000) {
-            printf("%lu mB\n", total_progress/1000000);
+    while(read_utf_8_char_from_fd(fd, &r, &u)) {
+        if(!insert_to_hash_map(u)) {
+            printf("Found aditional character \'");
+            print_utf_8_char(u);
+            printf("\' but hashmap is full.\n");
+            return 1;
         }
     }
+
     close(fd);
     printf("Found %d characters:\n", found_char_count);
     print_hash_map();
