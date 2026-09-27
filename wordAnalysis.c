@@ -53,6 +53,9 @@ void print_hash_map() {
 }
 
 
+
+utf_8_char word[128];
+
 int main (int argc, char **argv) {
     if (argc < 2) {
         printf("No filename provided\n");
@@ -63,9 +66,9 @@ int main (int argc, char **argv) {
         printf("Error opening file\n");
         return 1;
     }
-    const int buf_size = 256;
-    char buf[buf_size];
-    reader_info r = new_reader_info(buf, buf_size);
+
+    char buf[256];
+    reader_info r = new_reader_info(buf, sizeof(buf)/sizeof(*buf));
     utf_8_char u;
 
     while(read_utf_8_char_from_fd(fd, &r, &u)) {
