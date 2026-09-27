@@ -25,22 +25,16 @@ unsigned int rehash(unsigned int n) {
     return (n + 101) % HASH_MAP_SIZE;
 }
 
-bool insert_to_hash_map(utf_8_char u) {
-    if(isspace(u.chars[0]))
-        return true;
-
+int insert_to_hash_map(utf_8_char u) {
     unsigned int attempts = 0, i = hash(u);
     //While the space is non-empty and not equal to u
     while(!is_null_terminator(hash_map[i]) && !are_equal(u, hash_map[i])) {
         i = rehash(i);
         if(attempts++ >= HASH_MAP_SIZE)
-            return false;
+            return -1;
     }
-    
-    found_char_count += is_null_terminator(hash_map[i]);
     hash_map[i] = u;
-    char_counters[i]++;
-    return true;
+    return i;
 }
 
 void print_hash_map() {
@@ -53,8 +47,11 @@ void print_hash_map() {
 }
 
 
+void count_char(int i) {
+    found_char_count += char_counters[i] == 0;
+    char_counters[i]++;
+}
 
-utf_8_char word[128];
 
 int main (int argc, char **argv) {
     if (argc < 2) {
@@ -72,12 +69,17 @@ int main (int argc, char **argv) {
     utf_8_char u;
 
     while(read_utf_8_char_from_fd(fd, &r, &u)) {
-        if(!insert_to_hash_map(u)) {
+        if(isspace(u.chars[0]))
+            continue;
+        
+        int i = insert_to_hash_map(u);
+        if(i == -1) {
             printf("Found aditional character \'");
             print_utf_8_char(u);
             printf("\' but hashmap is full.\n");
             return 1;
         }
+        count_char(i);       
     }
 
     close(fd);
