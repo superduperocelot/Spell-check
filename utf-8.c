@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h> //memcmp
+#include <ctype.h> //isspace
 #include "utf-8.h"
 
 short utf_8_size(char c) {
@@ -16,6 +17,10 @@ short utf_8_size(char c) {
 
 bool is_null_terminator(utf_8_char u) {
     return u.chars[0] == '\0';
+}
+
+bool is_space_utf_8(utf_8_char u) {
+    return isspace(u.chars[0]);
 }
 
 bool are_equal(utf_8_char u_1, utf_8_char u_2) {

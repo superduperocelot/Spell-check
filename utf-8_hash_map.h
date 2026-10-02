@@ -3,8 +3,10 @@
 
 #include "utf-8.h"
 
-int insert_to_hash_map(utf_8_char* hash_map, int hash_map_size, utf_8_char u);
+int index_of(utf_8_char u, const utf_8_char* hash_map, int size);
 
-void print_hash_map(utf_8_char* hash_map, int hash_map_size, int* char_counts);
+int insert_to_hash_map(utf_8_char* hash_map, int size, utf_8_char u);
+
+void print_hash_map(const utf_8_char* hash_map, int size, int* char_counts);
 
 #endif

@@ -7,6 +7,8 @@ typedef struct {
 
 short utf_8_size(char c);
 
+bool is_space_utf_8(utf_8_char u);
+
 bool is_null_terminator(utf_8_char u);
 
 bool are_equal(utf_8_char u_1, utf_8_char u_2);

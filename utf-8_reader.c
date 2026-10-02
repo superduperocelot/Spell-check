@@ -5,18 +5,32 @@
 #include "utf-8_reader.h"
 
 
-utf_8_char read_utf_8_char(const char** c) {
-    utf_8_char u;
-    short chars_to_read = utf_8_size(**c);
-    if(chars_to_read == 0)
-        return (utf_8_char) {{'\0', '\0', '\0', '\0'}};
+short read_utf_8_c_internal(const char* c, utf_8_char* out) {
+    short size = utf_8_size(*c);
+    *out = (utf_8_char) {{'\0', '\0', '\0', '\0'}};
 
-    for(short i = 0; i < chars_to_read; i++) {
-        if(**c == '\0')
-            return (utf_8_char) {{'\0', '\0', '\0', '\0'}};
-        u.chars[i] = **c;
-        (*c)++;
+    for(short i = 0; i < size; i++) {
+        (*out).chars[i] = c[i];
     }
+    return size;
+}
+
+utf_8_char to_utf_8(char c) {
+    utf_8_char u;
+    u.chars[0] = c;    
+    return u;
+}
+
+utf_8_char read_utf_8_c(const char* c) {
+    utf_8_char u;
+    read_utf_8_c_internal(c, &u);
+    return u;
+}
+
+
+utf_8_char read_utf_8_c_from_stream(const char** c) {
+    utf_8_char u;
+    (*c) += read_utf_8_c_internal(*c, &u);
     return u;
 }
 
@@ -25,7 +39,7 @@ reader_info new_reader_info(char* buf, size_t capacity) {
 }
 
 
-bool read_utf_8_char_from_fd(int fd, reader_info* r, utf_8_char* out) {
+bool read_utf_8_c_from_fd(int fd, reader_info* r, utf_8_char* out) {
     size_t processed_byte_count = r->current - r->buf;
     if(processed_byte_count >= r->size) {
         //No more bytes to read in buf. Try to read more from fd
@@ -48,7 +62,7 @@ bool read_utf_8_char_from_fd(int fd, reader_info* r, utf_8_char* out) {
         r->size += missing_byte_count;
     }
     const char* p = r->current;
-    *out = read_utf_8_char(&r->current);
+    *out = read_utf_8_c_from_stream(&r->current);
     return true;
 }
 
@@ -59,7 +73,7 @@ bool load_word(const char* str, utf_8_char* word) {
     do {
         if(i >= MAX_WORD_LENGTH)
             return false;
-        word[i] = read_utf_8_char(&str);
+        word[i] = read_utf_8_c_from_stream(&str);
     } while(!is_null_terminator(word[i++]));
 
     return true;
