@@ -1,5 +1,5 @@
-#ifndef UTF_8_CONVERTER
-#define UTF_8_CONVERTER 
+#ifndef UTF_8_READER
+#define UTF_8_READER 
 
 #include "utf-8.h"
 
@@ -13,19 +13,19 @@ typedef struct {
 //Possibly deprecated
 #define MAX_WORD_LENGTH 128
 
-utf_8_char to_utf_8(char c);
+utf_8 to_utf_8(char c);
 
-utf_8_char read_utf_8_c(const char* c);
+utf_8 read_utf_8(const char* c);
 
-utf_8_char read_utf_8_c_from_stream(const char** c);
+utf_8 read_utf_8_from_stream(const char** c);
 
-bool load_word(const char* str, utf_8_char* word);
+bool load_word(const char* str, utf_8* word);
 
 reader_info new_reader_info(char* buf, size_t capacity);
 
-bool read_utf_8_c_from_fd(int fd, reader_info* r, utf_8_char* out);
+bool read_utf_8_from_fd(int fd, reader_info* r, utf_8* out);
 
-void print_word(utf_8_char* word);
+void print_word(utf_8* word);
 
 
 #endif

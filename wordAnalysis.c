@@ -27,24 +27,24 @@ int main (int argc, char **argv) {
 
     char buf[256];
     reader_info r = new_reader_info(buf, sizeof(buf)/sizeof(*buf));
-    utf_8_char u;
+    utf_8 u;
 
 
     const int hash_map_size = 443;
-    utf_8_char hash_map[hash_map_size] = {};
+    utf_8 hash_map[hash_map_size] = {};
 
     int char_counts[hash_map_size] = {};
     int unique_char_count;
 
 
-    while(read_utf_8_char_from_fd(fd, &r, &u)) {
+    while(read_utf_8_from_fd(fd, &r, &u)) {
         if(isspace(u.chars[0]))
             continue;
         
         int i = insert_to_hash_map(hash_map, hash_map_size, u);
         if(i == -1) {
             printf("Found aditional character \'");
-            print_utf_8_char(u);
+            print_utf_8(u);
             printf("\' but hashmap is full.\n");
             return 1;
         }

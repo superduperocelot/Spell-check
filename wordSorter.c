@@ -11,18 +11,18 @@
 #include "utf-8_hash_map.h"
 
 
-void print_non_paired_chars(const utf_8_char* char_map, const utf_8_char* char_partners, int size) {
+void print_non_paired_chars(const utf_8* char_map, const utf_8* char_partners, int size) {
     for(int i = 0; i < size; i++) {
         if(!is_null_terminator(char_map[i]) && are_equal(char_map[i], char_partners[i])) {
-            print_utf_8_char(char_map[i]);
+            print_utf_8(char_map[i]);
         }
     }
     printf("\n");
 }
 
-bool read_utf_8_pair(utf_8_char* u_1, utf_8_char* u_2) {
+bool read_utf_8_pair(utf_8* u_1, utf_8* u_2) {
     char c;
-    utf_8_char* current = u_1;
+    utf_8* current = u_1;
     int len = 0;
     bool last_was_space = true;
     bool done = false;
@@ -48,7 +48,7 @@ bool read_utf_8_pair(utf_8_char* u_1, utf_8_char* u_2) {
     return current == u_2 && len > 0;
 }
 
-bool make_capitalization_pair(utf_8_char u, utf_8_char U, utf_8_char* char_map, utf_8_char* char_partners, int size) {
+bool make_capitalization_pair(utf_8 u, utf_8 U, utf_8* char_map, utf_8* char_partners, int size) {
     int i = index_of(u, char_map, size);
     int I = index_of(U, char_map, size);
     if(i < 0 && I < 0)
@@ -61,20 +61,20 @@ bool make_capitalization_pair(utf_8_char u, utf_8_char U, utf_8_char* char_map, 
     return 0;
 }
 
-void print_capitalization_pairs(const utf_8_char* char_map, const utf_8_char* char_partners, int size) {
+void print_capitalization_pairs(const utf_8* char_map, const utf_8* char_partners, int size) {
     printf("Capitalization pairs:\n");    
     for(int i = 0; i < size; i++) {
         //The index comparison is a fancy cheat code to guarantee every pair is printed only once
         if(!are_equal(char_map[i], char_partners[i]) && index_of(char_partners[i], char_map, size) > i) {
-            print_utf_8_char(char_map[i]);
+            print_utf_8(char_map[i]);
             printf(" ");
-            print_utf_8_char(char_partners[i]);
+            print_utf_8(char_partners[i]);
             printf("\n");
         }
     }
 }
 
-void find_capitalization_pairs(utf_8_char* char_map, utf_8_char* char_partners, int size) {
+void find_capitalization_pairs(utf_8* char_map, utf_8* char_partners, int size) {
     memcpy(char_partners, char_map, size * sizeof(*char_map));
     
     for(char c = 'a', C = 'A'; c < 'z'; c++, C++) {
@@ -86,11 +86,11 @@ void find_capitalization_pairs(utf_8_char* char_map, utf_8_char* char_partners, 
     print_non_paired_chars(char_map, char_partners, size);
     printf("If any of them are the same letter, but capital and not, please write them one at a time like\nÅ å\nIf there are no pairs, press enter.\n");
 
-    utf_8_char u, U;
+    utf_8 u, U;
     while(read_utf_8_pair(&u, &U)) {
         int res = make_capitalization_pair(u, U, char_map, char_partners, size);
         if(res != 0) {
-            print_utf_8_char(res < 0 ? u : U);
+            print_utf_8(res < 0 ? u : U);
             printf(" is not in character list\n");
         }
         print_non_paired_chars(char_map, char_partners, size);
@@ -131,12 +131,12 @@ int main(int argc, char **argv) {
     
     
     const int char_map_size = 411;
-    utf_8_char char_map[char_map_size] = {};
-    utf_8_char char_partners[char_map_size] = {};
+    utf_8 char_map[char_map_size] = {};
+    utf_8 char_partners[char_map_size] = {};
     
-    utf_8_char u;
+    utf_8 u;
     const char* current = buf_1;
-    while(current - buf_1 < size && !is_null_terminator(u = read_utf_8_c_from_stream(&current))) {
+    while(current - buf_1 < size && !is_null_terminator(u = read_utf_8_from_stream(&current))) {
         if(is_space_utf_8(u))
             continue;
         int hash_index = insert_to_hash_map(char_map, char_map_size, u);

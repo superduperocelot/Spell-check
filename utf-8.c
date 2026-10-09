@@ -15,19 +15,19 @@ short utf_8_size(char c) {
     return 0;
 }
 
-bool is_null_terminator(utf_8_char u) {
+bool is_null_terminator(utf_8 u) {
     return u.chars[0] == '\0';
 }
 
-bool is_space_utf_8(utf_8_char u) {
+bool is_space_utf_8(utf_8 u) {
     return isspace(u.chars[0]);
 }
 
-bool are_equal(utf_8_char u_1, utf_8_char u_2) {
+bool are_equal(utf_8 u_1, utf_8 u_2) {
     return utf_8_size(u_1.chars[0]) == utf_8_size(u_2.chars[0]) &&
         memcmp(&u_1, &u_2, utf_8_size(u_1.chars[0])) == 0;
 }
 
-void print_utf_8_char(utf_8_char u) {
+void print_utf_8(utf_8 u) {
     printf("%.*s", utf_8_size(u.chars[0]), u.chars);
 }

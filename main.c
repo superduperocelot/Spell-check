@@ -6,7 +6,7 @@
 
 
 int main(void) {
-    utf_8_char word[MAX_WORD_LENGTH];
+    utf_8 word[MAX_WORD_LENGTH];
     char str[512];
     scanf("%s", str);
     load_word(str, word);

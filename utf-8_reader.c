@@ -5,9 +5,9 @@
 #include "utf-8_reader.h"
 
 
-short read_utf_8_c_internal(const char* c, utf_8_char* out) {
+short read_utf_8_internal(const char* c, utf_8* out) {
     short size = utf_8_size(*c);
-    *out = (utf_8_char) {{'\0', '\0', '\0', '\0'}};
+    *out = (utf_8) {{'\0', '\0', '\0', '\0'}};
 
     for(short i = 0; i < size; i++) {
         (*out).chars[i] = c[i];
@@ -15,22 +15,22 @@ short read_utf_8_c_internal(const char* c, utf_8_char* out) {
     return size;
 }
 
-utf_8_char to_utf_8(char c) {
-    utf_8_char u;
+utf_8 to_utf_8(char c) {
+    utf_8 u;
     u.chars[0] = c;    
     return u;
 }
 
-utf_8_char read_utf_8_c(const char* c) {
-    utf_8_char u;
-    read_utf_8_c_internal(c, &u);
+utf_8 read_utf_8(const char* c) {
+    utf_8 u;
+    read_utf_8_internal(c, &u);
     return u;
 }
 
 
-utf_8_char read_utf_8_c_from_stream(const char** c) {
-    utf_8_char u;
-    (*c) += read_utf_8_c_internal(*c, &u);
+utf_8 read_utf_8_from_stream(const char** c) {
+    utf_8 u;
+    (*c) += read_utf_8_internal(*c, &u);
     return u;
 }
 
@@ -39,7 +39,7 @@ reader_info new_reader_info(char* buf, size_t capacity) {
 }
 
 
-bool read_utf_8_c_from_fd(int fd, reader_info* r, utf_8_char* out) {
+bool read_utf_8_from_fd(int fd, reader_info* r, utf_8* out) {
     size_t processed_byte_count = r->current - r->buf;
     if(processed_byte_count >= r->size) {
         //No more bytes to read in buf. Try to read more from fd
@@ -62,25 +62,25 @@ bool read_utf_8_c_from_fd(int fd, reader_info* r, utf_8_char* out) {
         r->size += missing_byte_count;
     }
     const char* p = r->current;
-    *out = read_utf_8_c_from_stream(&r->current);
+    *out = read_utf_8_from_stream(&r->current);
     return true;
 }
 
 //Possibly deprecated
 
-bool load_word(const char* str, utf_8_char* word) {
+bool load_word(const char* str, utf_8* word) {
     int i = 0;
     do {
         if(i >= MAX_WORD_LENGTH)
             return false;
-        word[i] = read_utf_8_c_from_stream(&str);
+        word[i] = read_utf_8_from_stream(&str);
     } while(!is_null_terminator(word[i++]));
 
     return true;
 }
 
-void print_word(utf_8_char* word) {
+void print_word(utf_8* word) {
     for(int i = 0; !is_null_terminator(word[i]); i++){
-        print_utf_8_char(word[i]);
+        print_utf_8(word[i]);
     }
 }
