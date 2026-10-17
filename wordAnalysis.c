@@ -43,9 +43,7 @@ int main (int argc, char **argv) {
         
         int i = insert_to_hash_map(hash_map, hash_map_size, u);
         if(i == -1) {
-            printf("Found aditional character \'");
-            print_utf_8(u);
-            printf("\' but hashmap is full.\n");
+            printf("Found aditional character \'" U_FMT "\' but hashmap is full.\n", U_ARG(u));
             return 1;
         }
         count_char(char_counts, i, &unique_char_count);

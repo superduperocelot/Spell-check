@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include "utf-8_reader.h"
+#include "utf-8_hash_map.h"
 
 
 
@@ -14,13 +15,14 @@ unsigned int hash(utf_8 u, int size) {
 }
 
 unsigned int rehash(unsigned int n, int size) {
-    return (n + 101) % size;
+    return (n + 131) % size;
 }
 
-int index_of(utf_8 u, const utf_8* hash_map, int size) {
+//Index where u should be placed, or already is
+int index_for(utf_8 u, const utf_8* hash_map, int size) {
     unsigned int attempts = 0, i = hash(u, size);
     //While the space is non-empty and not equal to u
-    while(!is_null_terminator(hash_map[i]) && !are_equal(u, hash_map[i])) {
+    while(!is_null(hash_map[i]) && !are_equal(u, hash_map[i])) {
         i = rehash(i, size);
         if(attempts++ >= size)
             return -1;
@@ -28,8 +30,14 @@ int index_of(utf_8 u, const utf_8* hash_map, int size) {
     return i;
 }
 
+//Index where i is
+int index_of(utf_8 u, const utf_8* hash_map, int size) {
+    int i = index_for(u, hash_map, size);
+    return i >= 0 && !is_null(hash_map[i]) ? i : -1;
+}
+
 int insert_to_hash_map(utf_8* hash_map, int size, utf_8 u) {
-    int i = index_of(u, hash_map, size);
+    int i = index_for(u, hash_map, size);
     if(i > 0)
         hash_map[i] = u;
     return i;
@@ -37,9 +45,8 @@ int insert_to_hash_map(utf_8* hash_map, int size, utf_8 u) {
 
 void print_hash_map(const utf_8* hash_map, int size, int* char_counts) {
     for(int i = 0; i < size; i++) {
-        if(!is_null_terminator(hash_map[i])) {
-            print_utf_8(hash_map[i]);
-            printf(": %d\n", char_counts[i]);
+        if(!is_null(hash_map[i])) {
+            printf(U_FMT ": %d\n", U_ARG(hash_map[i]), char_counts[i]);
         }
     }
 }

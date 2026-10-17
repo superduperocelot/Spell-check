@@ -9,94 +9,8 @@
 #include <ctype.h>
 #include "utf-8_reader.h"
 #include "utf-8_hash_map.h"
+#include "case.h"
 
-
-void print_non_paired_chars(const utf_8* char_map, const utf_8* char_partners, int size) {
-    for(int i = 0; i < size; i++) {
-        if(!is_null_terminator(char_map[i]) && are_equal(char_map[i], char_partners[i])) {
-            print_utf_8(char_map[i]);
-        }
-    }
-    printf("\n");
-}
-
-bool read_utf_8_pair(utf_8* u_1, utf_8* u_2) {
-    char c;
-    utf_8* current = u_1;
-    int len = 0;
-    bool last_was_space = true;
-    bool done = false;
-    while((c = fgetc(stdin)) != '\n') {
-        if(done)
-            continue;
-        if(isspace(c)) {
-            if(last_was_space)
-                continue;
-            if(current == u_1) {
-                last_was_space = true;
-                current = u_2;
-                len = 0;
-                continue;
-            }
-            done = true;
-        }
-        last_was_space = false;
-        if(len < 4)
-            current->chars[len] = c;
-        len++;
-    }
-    return current == u_2 && len > 0;
-}
-
-bool make_capitalization_pair(utf_8 u, utf_8 U, utf_8* char_map, utf_8* char_partners, int size) {
-    int i = index_of(u, char_map, size);
-    int I = index_of(U, char_map, size);
-    if(i < 0 && I < 0)
-        return false;
-    
-    insert_to_hash_map(char_map, size, u);
-    insert_to_hash_map(char_map, size, U);
-    char_partners[i] = U;
-    char_partners[I] = u;
-    return 0;
-}
-
-void print_capitalization_pairs(const utf_8* char_map, const utf_8* char_partners, int size) {
-    printf("Capitalization pairs:\n");    
-    for(int i = 0; i < size; i++) {
-        //The index comparison is a fancy cheat code to guarantee every pair is printed only once
-        if(!are_equal(char_map[i], char_partners[i]) && index_of(char_partners[i], char_map, size) > i) {
-            print_utf_8(char_map[i]);
-            printf(" ");
-            print_utf_8(char_partners[i]);
-            printf("\n");
-        }
-    }
-}
-
-void find_capitalization_pairs(utf_8* char_map, utf_8* char_partners, int size) {
-    memcpy(char_partners, char_map, size * sizeof(*char_map));
-    
-    for(char c = 'a', C = 'A'; c < 'z'; c++, C++) {
-        make_capitalization_pair(to_utf_8(c), to_utf_8(C), char_map, char_partners, size);
-    }
-
-
-    printf("Found following foreign characters:\n");
-    print_non_paired_chars(char_map, char_partners, size);
-    printf("If any of them are the same letter, but capital and not, please write them one at a time like\nÅ å\nIf there are no pairs, press enter.\n");
-
-    utf_8 u, U;
-    while(read_utf_8_pair(&u, &U)) {
-        int res = make_capitalization_pair(u, U, char_map, char_partners, size);
-        if(res != 0) {
-            print_utf_8(res < 0 ? u : U);
-            printf(" is not in character list\n");
-        }
-        print_non_paired_chars(char_map, char_partners, size);
-    }
-    print_capitalization_pairs(char_map, char_partners, size);
-}
 
 
 
@@ -132,11 +46,12 @@ int main(int argc, char **argv) {
     
     const int char_map_size = 411;
     utf_8 char_map[char_map_size] = {};
-    utf_8 char_partners[char_map_size] = {};
+
     
     utf_8 u;
     const char* current = buf_1;
-    while(current - buf_1 < size && !is_null_terminator(u = read_utf_8_from_stream(&current))) {
+    //Save memory by writing into the beginning of buf    
+    while(current - buf_1 < size && !is_null(u = read_utf_8_from_stream(&current))) {
         if(is_space_utf_8(u))
             continue;
         int hash_index = insert_to_hash_map(char_map, char_map_size, u);
@@ -146,7 +61,13 @@ int main(int argc, char **argv) {
         }
     }
     
-    find_capitalization_pairs(char_map, char_partners, char_map_size);
+    int min_index_map[char_map_size];
+    int maj_index_map[char_map_size];
+    utf_8 min_arr[char_map_size] = {};
+    utf_8 maj_arr[char_map_size] = {};
+    case_map_t case_map = new_case_map(min_index_map, maj_index_map, min_arr, maj_arr, char_map_size);
+    
+    fill_case_map(&case_map, char_map);
     
     return 0;
 }

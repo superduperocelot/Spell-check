@@ -2,12 +2,13 @@
 #include <stdio.h>
 #include <assert.h>
 #include <unistd.h> //read
+#include <ctype.h>
 #include "utf-8_reader.h"
 
 
 short read_utf_8_internal(const char* c, utf_8* out) {
     short size = utf_8_size(*c);
-    *out = (utf_8) {{'\0', '\0', '\0', '\0'}};
+    *out = UTF_8_NULL;
 
     for(short i = 0; i < size; i++) {
         (*out).chars[i] = c[i];
@@ -66,6 +67,36 @@ bool read_utf_8_from_fd(int fd, reader_info* r, utf_8* out) {
     return true;
 }
 
+
+bool read_utf_8_pair(utf_8* u_1, utf_8* u_2) {
+    char c;
+    utf_8* current = u_1;
+    int len = 0;
+    bool last_was_space = true;
+    bool done = false;
+    while((c = fgetc(stdin)) != '\n') {
+        if(done)
+            continue;
+        if(isspace(c)) {
+            if(last_was_space)
+                continue;
+            if(current == u_1) {
+                last_was_space = true;
+                current = u_2;
+                len = 0;
+                continue;
+            }
+            done = true;
+        }
+        last_was_space = false;
+        if(len < 4)
+            current->chars[len] = c;
+        len++;
+    }
+    return current == u_2 && len > 0;
+}
+
+
 //Possibly deprecated
 
 bool load_word(const char* str, utf_8* word) {
@@ -74,13 +105,13 @@ bool load_word(const char* str, utf_8* word) {
         if(i >= MAX_WORD_LENGTH)
             return false;
         word[i] = read_utf_8_from_stream(&str);
-    } while(!is_null_terminator(word[i++]));
+    } while(!is_null(word[i++]));
 
     return true;
 }
 
 void print_word(utf_8* word) {
-    for(int i = 0; !is_null_terminator(word[i]); i++){
-        print_utf_8(word[i]);
+    for(int i = 0; !is_null(word[i]); i++){
+        printf(U_FMT, U_ARG(word[i]));
     }
 }

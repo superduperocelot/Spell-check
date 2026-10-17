@@ -27,5 +27,6 @@ bool read_utf_8_from_fd(int fd, reader_info* r, utf_8* out);
 
 void print_word(utf_8* word);
 
+bool read_utf_8_pair(utf_8* u_1, utf_8* u_2);
 
 #endif

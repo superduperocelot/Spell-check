@@ -15,7 +15,7 @@ short utf_8_size(char c) {
     return 0;
 }
 
-bool is_null_terminator(utf_8 u) {
+bool is_null(utf_8 u) {
     return u.chars[0] == '\0';
 }
 
@@ -26,8 +26,4 @@ bool is_space_utf_8(utf_8 u) {
 bool are_equal(utf_8 u_1, utf_8 u_2) {
     return utf_8_size(u_1.chars[0]) == utf_8_size(u_2.chars[0]) &&
         memcmp(&u_1, &u_2, utf_8_size(u_1.chars[0])) == 0;
-}
-
-void print_utf_8(utf_8 u) {
-    printf("%.*s", utf_8_size(u.chars[0]), u.chars);
 }
