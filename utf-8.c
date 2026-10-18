@@ -4,15 +4,12 @@
 #include "utf-8.h"
 
 short utf_8_size(char c) {
-    if(!((c & 0b10000000) ^ 0b00000000)) //First byte is 0;
-        return 1;
-    if(!((c & 0b11100000) ^ 0b11000000)) //First 2 bytes are 1
-        return 2;
-    if(!((c & 0b11110000) ^ 0b11100000)) //First 3 bytes are 1
-        return 3;
-    if(!((c & 0b11110000) ^ 0b11110000)) //First 4 bytes are 1
-        return 4;
-    return 0;
+    int one_zero   = !((c & 0b10000000) ^ 0b00000000); //First byte is 0;
+    int two_ones   = !((c & 0b11100000) ^ 0b11000000); //First 2 bytes are 1
+    int three_ones = !((c & 0b11110000) ^ 0b11100000); //First 3 bytes are 1
+    int four_ones  = !((c & 0b11110000) ^ 0b11110000); //First 4 bytes are 1
+
+    return one_zero + 2 * two_ones + 3 * three_ones + 4 * four_ones;
 }
 
 bool is_null(utf_8 u) {
