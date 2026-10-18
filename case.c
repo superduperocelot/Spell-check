@@ -216,3 +216,16 @@ enum case_error_code fill_case_map(case_map_t* case_map, const utf_8* char_map) 
         return CASE_OUT_OF_MEMORY;
     return CASE_OK;
 }
+
+enum case_error_code print_case_error (enum case_error_code code) {
+    switch(code) {
+        case CASE_OK:
+            break;
+        case CASE_OUT_OF_MEMORY:
+            printf("Out of memory\n");
+            break;
+        default:
+            printf("Unrecognized error: %d\n", (int) code);
+    }
+    return code;
+}

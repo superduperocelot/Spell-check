@@ -20,4 +20,6 @@ case_map_t new_case_map(int* min_index_map, int* maj_index_map, utf_8* min_arr, 
 enum case_error_code fill_case_map(case_map_t* case_map, const utf_8* char_map);
 int index_of_case(utf_8 u, case_map_t case_map);
 
+enum case_error_code print_case_error (enum case_error_code code);
+
 #endif

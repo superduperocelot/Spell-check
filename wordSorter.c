@@ -42,10 +42,9 @@ int main(int argc, char **argv) {
         return 1;
     }
     
-    
-    
     const int char_map_size = 411;
     utf_8 char_map[char_map_size] = {};
+
 
     
     utf_8 u;
@@ -67,7 +66,10 @@ int main(int argc, char **argv) {
     utf_8 maj_arr[char_map_size] = {};
     case_map_t case_map = new_case_map(min_index_map, maj_index_map, min_arr, maj_arr, char_map_size);
     
-    fill_case_map(&case_map, char_map);
+    enum case_error_code status = fill_case_map(&case_map, char_map);
+    if(status != CASE_OK)
+        return print_case_error(status);
+    
     
     return 0;
 }
