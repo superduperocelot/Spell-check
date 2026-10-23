@@ -5,19 +5,18 @@
 #include <ctype.h>
 #include "utf-8_reader.h"
 
-
-short read_utf_8_internal(const char* c, utf_8* out) {
-    short size = utf_8_size(*c);
+unsigned char read_utf_8_internal(const char* c, utf_8* out) {
+    unsigned char size = utf_8_size(*c);
     *out = UTF_8_NULL;
 
-    for(short i = 0; i < size; i++) {
+    for(unsigned char i = 0; i < size; i++) {
         (*out).chars[i] = c[i];
     }
     return size;
 }
 
 utf_8 to_utf_8(char c) {
-    utf_8 u;
+    utf_8 u = UTF_8_NULL;
     u.chars[0] = c;    
     return u;
 }

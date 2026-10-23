@@ -12,7 +12,7 @@ typedef struct {
 } utf_8;
 
 
-short utf_8_size(char c);
+unsigned char utf_8_size(char c);
 
 bool is_space_utf_8(utf_8 u);
 

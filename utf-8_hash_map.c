@@ -7,8 +7,8 @@
 
 unsigned int hash(utf_8 u, int size) {
     unsigned int hash_sum = 0;
-    for(short i = 0; i < utf_8_size(u.chars[0]); i++) {
-        hash_sum += u.chars[i];    
+    for(unsigned char i = 0; i < utf_8_size(u.chars[0]); i++) {
+        hash_sum += u.chars[i];
     }
     hash_sum %= size;
     return hash_sum;
