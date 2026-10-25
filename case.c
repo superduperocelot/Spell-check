@@ -189,7 +189,6 @@ enum case_error_code fill_case_map(case_map_t* case_map, const utf_8* char_map) 
             return CASE_OUT_OF_MEMORY;
     }
 
-    print_chars_not_in_case_map(*case_map, char_map);
     printf("If any of the following unknown characters are different capitalizations of the same letter, please write them one at a time like this:\nå Å\nWhen there are no more pairs, press enter.\n\n");
     print_case_map(*case_map);
     printf("\n");
