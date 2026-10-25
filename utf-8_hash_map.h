@@ -3,14 +3,14 @@
 
 #include "utf-8.h"
 
-int index_for(utf_8 u, const utf_8* hash_map, int size);
-int index_of(utf_8 u, const utf_8* hash_map, int size);
+short index_for(utf_8 u, const utf_8* hash_map, short size);
+short index_of(utf_8 u, const utf_8* hash_map, short size);
 
-int insert_to_hash_map(utf_8* hash_map, int size, utf_8 u);
+short insert_to_hash_map(utf_8* hash_map, short size, utf_8 u);
 
-void print_hash_map(const utf_8* hash_map, int size, int* char_counts);
+void print_hash_map(const utf_8* hash_map, short size, int* char_counts);
 
-unsigned int hash(utf_8 u, int size);
-unsigned int rehash(unsigned int n, int size);
+unsigned short hash(utf_8 u, short size);
+unsigned short rehash(unsigned short n, short size);
 
 #endif
