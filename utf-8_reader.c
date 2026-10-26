@@ -17,7 +17,7 @@ unsigned char read_utf_8_internal(const char* c, utf_8* out) {
 
 utf_8 to_utf_8(char c) {
     utf_8 u = UTF_8_NULL;
-    u.chars[0] = c;    
+    u.chars[0] = c;
     return u;
 }
 
@@ -61,7 +61,6 @@ bool read_utf_8_from_fd(int fd, reader_info* r, utf_8* out) {
         }
         r->size += missing_byte_count;
     }
-    const char* p = r->current;
     *out = read_utf_8_from_stream(&r->current);
     return true;
 }
