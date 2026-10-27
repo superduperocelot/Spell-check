@@ -161,14 +161,8 @@ int main(int argc, char **argv) {
         printf("Out of memory\n");
         return 1;
     }
-    printf("filling\n");
+
     fill_word_lists(word_lists, word_size_counts, temp_index_buf, char_count, char_map, &case_map);
-    
-    printf("Done\n");
-    for(int i = 0; i < word_size_counts[1] * 1; i++) {
-        printf(U_FMT, U_ARG(case_map.min_arr[word_lists[1][i]]));
-        if(i % 1 == 0) printf("\n");
-    }
         
     return 0;
 }
