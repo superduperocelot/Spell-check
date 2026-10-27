@@ -185,8 +185,9 @@ void print_case_map(const case_map_t* case_map) {
 
 enum case_error_code fill_case_map(case_map_t* case_map, const utf_8* char_map, int char_map_size) {
     for(char c = 'a', C = 'A'; c <= 'z'; c++, C++) {
-        if (!add_pair_to_case_map(to_utf_8(c), to_utf_8(C), case_map))
-            return CASE_OUT_OF_MEMORY;
+        if(index_of(to_utf_8(c), char_map, char_map_size) >= 0 || index_of(to_utf_8(C), char_map, char_map_size) >= 0)
+            if (!add_pair_to_case_map(to_utf_8(c), to_utf_8(C), case_map))
+                return CASE_OUT_OF_MEMORY;
     }
 
     printf("If any of the following unknown characters are different capitalizations of the same letter, please write them one at a time like this:\nå Å\nWhen there are no more pairs, press enter.\n\n");
