@@ -1,4 +1,4 @@
-//This assumes that the file is almost sorted, but some words are misplaced. For example "aa" is equivelant "å", so they may be placed together in the word list, even though they shouldn't be.
+ //This assumes that the file is almost sorted, but some words are misplaced. For example "aa" is equivelant "å", so they may be placed together in the word list, even though they shouldn't be.
 
 
 #include <stdlib.h>
@@ -88,16 +88,20 @@ bool make_word_lists(unsigned char*** word_lists_out, const size_t* word_size_co
 
     *word_lists_out = malloc(sizeof(unsigned char*) * (largest_word_size)+1);
     if(!word_lists_out) return false;
+    
+    size_t char_count = 0;
+    for(int i = 0; i <= largest_word_size; i++) {
+        char_count += word_size_counts[i] * i;
+    }
+    
+    unsigned char* word_lists_block = malloc(sizeof(unsigned char) * char_count);
+    if(word_lists_block == NULL) {free(*word_lists_out); return false;}
 
+    unsigned char* next_free_room = word_lists_block;
     for(int i = 0; i <= largest_word_size; i++) {
         int word_count = word_size_counts[i];
-        if(word_count == 0) {
-            (*word_lists_out)[i] = NULL;
-            continue;
-        }
-        (*word_lists_out)[i] = malloc(word_count * i);
-        if((*word_lists_out)[i] == NULL)
-            return false;
+        (*word_lists_out)[i] = word_count > 0 ? next_free_room : NULL;
+        next_free_room += word_count * i;
     }
     return true;
 }
